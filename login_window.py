@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (QWidget, QLabel, QLineEdit, QPushButton, 
                             QVBoxLayout, QMessageBox, QApplication)
 from PyQt5.QtCore import Qt
-#from backend import authenticate
+
 
 class LoginWindow(QWidget):
     def __init__(self):
