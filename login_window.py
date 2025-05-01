@@ -1,13 +1,15 @@
 from PyQt5.QtWidgets import (QWidget, QLabel, QLineEdit, QPushButton, 
                             QVBoxLayout, QMessageBox, QApplication)
 from PyQt5.QtCore import Qt
-
+from PyQt5.QtGui import QIcon
+from backend import authenticate
 
 class LoginWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Student Management System - Login")
-        self.resize(400, 300)
+        self.setWindowIcon(QIcon("icon.jpg"))
+        self.resize(550, 400)
         self.setup_ui()
     
     def setup_ui(self):
@@ -18,7 +20,7 @@ class LoginWindow(QWidget):
         # Title
         title = QLabel("Student Management System")
         title.setAlignment(Qt.AlignCenter)
-        title.setStyleSheet("font-size: 24px; font-weight: bold; color: #98a77c;")
+        title.setStyleSheet("font-size: 30px; font-weight: bold; color: #375534; padding: 5px")
         
         # Form
         form_layout = QVBoxLayout()
@@ -26,28 +28,29 @@ class LoginWindow(QWidget):
 
         self.label_username = QLabel("Username:")
         self.label_password = QLabel("Password:")
-        self.label_username.setStyleSheet("QLabel { font-weight: bold; color: #26425a; }")
-        self.label_password.setStyleSheet("QLabel { font-weight: bold; color: #26425a; }")
+        self.label_username.setStyleSheet("QLabel { font-size: 15px; font-weight: bold; color: #26425a; }")
+        self.label_password.setStyleSheet("QLabel { font-size: 15px; font-weight: bold; color: #26425a; }")
 
         self.username = QLineEdit()
         self.username.setPlaceholderText("Username")
 
-        self.username.setStyleSheet("QLineEdit { padding: 8px; }")
+        self.username.setStyleSheet("QLineEdit { font-size: 17px; padding: 15px; }")
     
         self.password = QLineEdit()
         self.password.setPlaceholderText("Password")
         self.password.setEchoMode(QLineEdit.Password)
-        self.password.setStyleSheet("padding: 8px;")
+        self.password.setStyleSheet("font-size: 17px; padding: 15px;")
         
         login_btn = QPushButton("Login")
         login_btn.setStyleSheet("""
             QPushButton {
                 background-color: #728156;
                 color: white;
-                border: none;
-                padding: 10px;
-                font-size: 16px;
-                border-radius: 4px;
+                border: None;
+                padding: 19px;
+                font-size: 18px;
+                border-radius: 8px;
+                margin-top: 30px;
             }
             QPushButton:hover {
                 background-color: #3c5148;
@@ -65,6 +68,7 @@ class LoginWindow(QWidget):
         # Main layout
         layout.addWidget(title)
         layout.addLayout(form_layout)
+        layout.setContentsMargins(20,20,20,20)
         
         self.setLayout(layout)
     
@@ -72,11 +76,11 @@ class LoginWindow(QWidget):
         username = self.username.text().strip()
         password = self.password.text().strip()
         
-        if not username or not password:
+"""        if not username or not password:
             QMessageBox.warning(self, "Error", "Please enter both username and password")
             return
         
-"""        role = authenticate(username, password)]
+        role = authenticate(username, password)
         if role:
             self.hide()
             from main_window import MainWindow
