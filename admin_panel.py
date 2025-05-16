@@ -1,37 +1,74 @@
 from PyQt5.QtWidgets import (QWidget, QTableWidget, QTableWidgetItem, 
                            QPushButton, QVBoxLayout, QHBoxLayout, 
-                           QMessageBox, QInputDialog, QLineEdit, QLabel)
+                           QMessageBox, QInputDialog, QLineEdit, QLabel, 
+                           QGroupBox, QFrame)
 from PyQt5.QtCore import Qt
-from sms_backend import add_user, get_users, delete_user
+from backend import add_user, get_users, delete_user
 
 class AdminPanel(QWidget):
     def __init__(self):
         super().__init__()
         self.setup_ui()
+        self.resize(1200, 900)
         self.load_users()
         
     def setup_ui(self):
-        layout = QVBoxLayout()
-        layout.setSpacing(15)
+        main_layout = QVBoxLayout()
+        main_layout.setSpacing(20)
+        main_layout.setContentsMargins(20, 20, 20, 20)
         
         # Title
         title = QLabel("User Management")
         title.setAlignment(Qt.AlignCenter)
-        title.setStyleSheet("font-size: 20px; font-weight: bold; color: #2c3e50;")
+        title.setStyleSheet("""
+            QLabel {
+                font-size: 24px;
+                font-weight: bold;
+                color: #375534;
+                padding: 10px;
+            }
+        """)
+        
+        # Form group
+        form_group = QGroupBox("Add New User")
+        form_group.setStyleSheet("""
+            QGroupBox {
+                font-size: 16px;
+                font-weight: bold;
+                color: #375534;
+                border: 1px solid #a8c7a5;
+                border-radius: 5px;
+                margin-top: 10px;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 5px;
+            }
+        """)
+        
+        form_layout = QVBoxLayout()
+        form_layout.setSpacing(15)
         
         # Buttons
         btn_layout = QHBoxLayout()
+        btn_layout.setSpacing(10)
         
         self.add_btn = QPushButton("Add User")
         self.add_btn.setStyleSheet("""
             QPushButton {
-                background-color: #27ae60;
+                background-color: #728156;
                 color: white;
-                padding: 8px;
-                border-radius: 4px;
+                padding: 10px;
+                border-radius: 5px;
+                font-weight: bold;
+                min-width: 100px;
             }
             QPushButton:hover {
-                background-color: #2ecc71;
+                background-color: #3c5148;
+            }
+            QPushButton:pressed {
+                background-color: #2a3a32;
             }
         """)
         self.add_btn.clicked.connect(self.show_add_user_dialog)
@@ -39,13 +76,18 @@ class AdminPanel(QWidget):
         self.refresh_btn = QPushButton("Refresh")
         self.refresh_btn.setStyleSheet("""
             QPushButton {
-                background-color: #3498db;
+                background-color: #5a724a;
                 color: white;
-                padding: 8px;
-                border-radius: 4px;
+                padding: 10px;
+                border-radius: 5px;
+                font-weight: bold;
+                min-width: 100px;
             }
             QPushButton:hover {
-                background-color: #2980b9;
+                background-color: #3c5148;
+            }
+            QPushButton:pressed {
+                background-color: #2a3a32;
             }
         """)
         self.refresh_btn.clicked.connect(self.load_users)
@@ -54,6 +96,15 @@ class AdminPanel(QWidget):
         btn_layout.addWidget(self.refresh_btn)
         btn_layout.addStretch()
         
+        form_layout.addLayout(btn_layout)
+        form_group.setLayout(form_layout)
+        
+        # Separator
+        separator = QFrame()
+        separator.setFrameShape(QFrame.HLine)
+        separator.setFrameShadow(QFrame.Sunken)
+        separator.setStyleSheet("color: #a8c7a5;")
+        
         # User table
         self.user_table = QTableWidget()
         self.user_table.setColumnCount(4)
@@ -61,13 +112,28 @@ class AdminPanel(QWidget):
         self.user_table.horizontalHeader().setStretchLastSection(True)
         self.user_table.verticalHeader().setVisible(False)
         self.user_table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.user_table.setStyleSheet("""
+            QTableWidget {
+                background-color: white;
+                border: 1px solid #a8c7a5;
+                border-radius: 5px;
+            }
+            QHeaderView::section {
+                background-color: #728156;
+                color: white;
+                padding: 5px;
+                border: none;
+                font-weight: bold;
+            }
+        """)
         
         # Add to main layout
-        layout.addWidget(title)
-        layout.addLayout(btn_layout)
-        layout.addWidget(self.user_table)
+        main_layout.addWidget(title)
+        main_layout.addWidget(form_group)
+        main_layout.addWidget(separator)
+        main_layout.addWidget(self.user_table)
         
-        self.setLayout(layout)
+        self.setLayout(main_layout)
     
     def load_users(self):
         users = get_users()
@@ -87,8 +153,9 @@ class AdminPanel(QWidget):
                 QPushButton {
                     background-color: #e74c3c;
                     color: white;
-                    padding: 5px;
+                    padding: 5px 10px;
                     border-radius: 3px;
+                    font-weight: bold;
                 }
                 QPushButton:hover {
                     background-color: #c0392b;
