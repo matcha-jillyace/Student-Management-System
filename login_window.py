@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import (QWidget, QLabel, QLineEdit, QPushButton, 
-                            QVBoxLayout, QMessageBox, QApplication)
+                             QVBoxLayout, QHBoxLayout, QMessageBox, QApplication)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from backend import authenticate
@@ -9,48 +9,65 @@ class LoginWindow(QWidget):
         super().__init__()
         self.setWindowTitle("Student Management System - Login")
         self.setWindowIcon(QIcon("icon.jpg"))
-        self.resize(550, 400)
+        self.setStyleSheet("background-color: #CCEEC0;")
         self.setup_ui()
     
     def setup_ui(self):
-        layout = QVBoxLayout()
-        layout.setAlignment(Qt.AlignCenter)
-        layout.setSpacing(20)
+        outer_layout = QVBoxLayout(self)
+        outer_layout.setAlignment(Qt.AlignCenter)
+        outer_layout.setContentsMargins(10, 10, 10, 10)
+
+        login_panel = QWidget()
+        login_panel.setFixedSize(750, 600)
+        login_panel.setStyleSheet("""
+            QWidget { 
+                background-color: #ffffff; 
+                border: 1px solid #ffffff; 
+                border-radius: 10px;
+            }
+        """)
         
-        # Title
+        panel_layout = QVBoxLayout(login_panel)
+        panel_layout.setSpacing(20)
+        panel_layout.setContentsMargins(100, 40, 100, 50)
+        
         title = QLabel("Student Management System")
         title.setAlignment(Qt.AlignCenter)
-        title.setStyleSheet("font-size: 30px; font-weight: bold; color: #375534; padding: 5px")
-        
-        # Form
-        form_layout = QVBoxLayout()
-        form_layout.setSpacing(10)
+        title.setStyleSheet("font-size: 30px; font-weight: bold; color: #375534;")
+        panel_layout.addWidget(title)
 
+        from PyQt5.QtWidgets import QFormLayout, QHBoxLayout
+        form_layout = QFormLayout()
+        form_layout.setSpacing(15)
+        form_layout.setLabelAlignment(Qt.AlignRight)
+        
         self.label_username = QLabel("Username:")
         self.label_password = QLabel("Password:")
-        self.label_username.setStyleSheet("QLabel { font-size: 15px; font-weight: bold; color: #26425a; }")
-        self.label_password.setStyleSheet("QLabel { font-size: 15px; font-weight: bold; color: #26425a; }")
-
+        self.label_username.setStyleSheet("font-size: 15px; font-weight: bold; color: #26425a;")
+        self.label_password.setStyleSheet("font-size: 15px; font-weight: bold; color: #26425a;")
+        
         self.username = QLineEdit()
         self.username.setPlaceholderText("Username")
-
-        self.username.setStyleSheet("QLineEdit { font-size: 17px; padding: 15px; }")
-    
+        self.username.setStyleSheet("font-size: 17px; padding: 10px; background-color: #E4F6DA;")
+        
         self.password = QLineEdit()
         self.password.setPlaceholderText("Password")
         self.password.setEchoMode(QLineEdit.Password)
-        self.password.setStyleSheet("font-size: 17px; padding: 15px;")
+        self.password.setStyleSheet("font-size: 17px; padding: 10px; background-color: #E4F6DA;")
+
+        form_layout.addRow(self.label_username, self.username)
+        form_layout.addRow(self.label_password, self.password)
+        panel_layout.addLayout(form_layout)
         
         login_btn = QPushButton("Login")
         login_btn.setStyleSheet("""
             QPushButton {
                 background-color: #728156;
                 color: white;
-                border: None;
-                padding: 19px;
+                border: none;
+                padding: 15px 30px;
                 font-size: 18px;
-                border-radius: 8px;
-                margin-top: 30px;
+                border-radius: 7px;
             }
             QPushButton:hover {
                 background-color: #3c5148;
@@ -58,40 +75,34 @@ class LoginWindow(QWidget):
         """)
         login_btn.clicked.connect(self.authenticate)
         
-        # Add widgets to layout
-        form_layout.addWidget(self.label_username)
-        form_layout.addWidget(self.username)
-        form_layout.addWidget(self.label_password)
-        form_layout.addWidget(self.password)
-        form_layout.addWidget(login_btn)
+        btn_layout = QHBoxLayout()
+        btn_layout.setAlignment(Qt.AlignCenter)
+        btn_layout.addWidget(login_btn)
+        panel_layout.addLayout(btn_layout)
         
-        # Main layout
-        layout.addWidget(title)
-        layout.addLayout(form_layout)
-        layout.setContentsMargins(20,20,20,20)
-        
-        self.setLayout(layout)
+        outer_layout.addWidget(login_panel)
     
     def authenticate(self):
         username = self.username.text().strip()
         password = self.password.text().strip()
         
-"""        if not username or not password:
+        if not username or not password:
             QMessageBox.warning(self, "Error", "Please enter both username and password")
             return
         
         role = authenticate(username, password)
         if role:
             self.hide()
-            from main_window import MainWindow
-            self.main = MainWindow(role)
-            self.main.show()
+            from dash_board import DashBoard
+            self.main = DashBoard(role)
+            self.main.setWindowFlags(Qt.Window | Qt.WindowMinimizeButtonHint | Qt.WindowCloseButtonHint)
+            self.main.showMaximized()
         else:
-            QMessageBox.critical(self, "Error", "Invalid credentials")"""
+            QMessageBox.critical(self, "Error", "Invalid credentials")
 
 if __name__ == "__main__":
     app = QApplication([])
     window = LoginWindow()
-    window.setStyleSheet("QWidget { background-color: #b6c99b}")
-    window.show()
+    window.setWindowFlags(Qt.Window | Qt.WindowMinimizeButtonHint | Qt.WindowCloseButtonHint)
+    window.showMaximized() 
     app.exec_()

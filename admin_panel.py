@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (QWidget, QTableWidget, QTableWidgetItem, 
                            QPushButton, QVBoxLayout, QHBoxLayout, 
                            QMessageBox, QInputDialog, QLineEdit, QLabel, 
-                           QGroupBox, QFrame)
+                           QGroupBox, QFrame, QHeaderView)
 from PyQt5.QtCore import Qt
 from backend import add_user, get_users, delete_user
 
@@ -29,7 +29,6 @@ class AdminPanel(QWidget):
             }
         """)
         
-        # Form group
         form_group = QGroupBox("Add New User")
         form_group.setStyleSheet("""
             QGroupBox {
@@ -48,11 +47,11 @@ class AdminPanel(QWidget):
         """)
         
         form_layout = QVBoxLayout()
-        form_layout.setSpacing(15)
+        form_layout.setSpacing(50)
         
-        # Buttons
         btn_layout = QHBoxLayout()
         btn_layout.setSpacing(10)
+        btn_layout.setAlignment(Qt.AlignCenter)
         
         self.add_btn = QPushButton("Add User")
         self.add_btn.setStyleSheet("""
@@ -94,28 +93,28 @@ class AdminPanel(QWidget):
         
         btn_layout.addWidget(self.add_btn)
         btn_layout.addWidget(self.refresh_btn)
-        btn_layout.addStretch()
         
         form_layout.addLayout(btn_layout)
         form_group.setLayout(form_layout)
+        form_group.setFixedWidth(600)
         
-        # Separator
         separator = QFrame()
         separator.setFrameShape(QFrame.HLine)
         separator.setFrameShadow(QFrame.Sunken)
         separator.setStyleSheet("color: #a8c7a5;")
-        
-        # User table
+
         self.user_table = QTableWidget()
         self.user_table.setColumnCount(4)
+        self.user_table.setMaximumSize(1500, 800)
         self.user_table.setHorizontalHeaderLabels(["ID", "Username", "Role", "Actions"])
         self.user_table.horizontalHeader().setStretchLastSection(True)
+        self.user_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.user_table.verticalHeader().setVisible(False)
         self.user_table.setEditTriggers(QTableWidget.NoEditTriggers)
         self.user_table.setStyleSheet("""
             QTableWidget {
                 background-color: white;
-                border: 1px solid #a8c7a5;
+                border: 2px solid #a8c7a5;
                 border-radius: 5px;
             }
             QHeaderView::section {
@@ -127,14 +126,22 @@ class AdminPanel(QWidget):
             }
         """)
         
-        # Add to main layout
         main_layout.addWidget(title)
-        main_layout.addWidget(form_group)
-        main_layout.addWidget(separator)
-        main_layout.addWidget(self.user_table)
+        form_hbox = QHBoxLayout()
+        form_hbox.addStretch()
+        form_hbox.addWidget(form_group)
+        form_hbox.addStretch()
+        main_layout.addLayout(form_hbox)
         
+        main_layout.addWidget(separator)
+        
+        table_container = QWidget()
+        table_layout = QHBoxLayout(table_container)
+        table_layout.setAlignment(Qt.AlignCenter)
+        table_layout.addWidget(self.user_table)
+        main_layout.addWidget(table_container)  
         self.setLayout(main_layout)
-    
+
     def load_users(self):
         users = get_users()
         self.user_table.setRowCount(len(users))
@@ -142,12 +149,10 @@ class AdminPanel(QWidget):
         for row, user in enumerate(users):
             user_id, username, role = user
             
-            # Add user data to table
             self.user_table.setItem(row, 0, QTableWidgetItem(str(user_id)))
             self.user_table.setItem(row, 1, QTableWidgetItem(username))
             self.user_table.setItem(row, 2, QTableWidgetItem(role))
             
-            # Add delete button
             delete_btn = QPushButton("Delete")
             delete_btn.setStyleSheet("""
                 QPushButton {
@@ -164,7 +169,6 @@ class AdminPanel(QWidget):
             delete_btn.clicked.connect(lambda _, uid=user_id: self.delete_user(uid))
             self.user_table.setCellWidget(row, 3, delete_btn)
         
-        self.user_table.resizeColumnsToContents()
     
     def show_add_user_dialog(self):
         username, ok = QInputDialog.getText(self, "Add User", "Username:")
@@ -204,5 +208,6 @@ if __name__ == "__main__":
     from PyQt5.QtWidgets import QApplication
     app = QApplication([])
     window = AdminPanel()
-    window.show()
+    window.setWindowFlags(Qt.Window | Qt.WindowMinimizeButtonHint | Qt.WindowCloseButtonHint)
+    window.showMaximized()
     app.exec_()
